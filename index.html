@@ -802,17 +802,6 @@
         [...els.beatDots.children].forEach(dot => { dot.className = 'beat-dot'; });
       }
 
-      async function countdown(token) {
-        const labels = ['3', '2', '1', '따라하세요!'];
-        for (const label of labels) {
-          if (token !== runToken) return false;
-          els.statusText.textContent = label;
-          tone(label === '따라하세요!' ? 720 : 420, .08, .07, 'triangle');
-          await wait(label === '따라하세요!' ? 450 : 360);
-        }
-        return token === runToken;
-      }
-
       async function playRound() {
         const token = ++runToken;
         const pattern = patterns[round];
@@ -845,7 +834,7 @@
         }
 
         await wait(beatMs * .72);
-        if (!(await countdown(token))) return;
+        if (token !== runToken) return;
 
         resetDots();
         els.beatProgress.style.transition = 'none';
@@ -855,10 +844,10 @@
         els.beatProgress.style.width = '100%';
 
         phase = 'response';
-        responseStart = performance.now() + 360;
+        responseStart = performance.now() + beatMs * .28;
         expectedTimes = times.map(time => responseStart + time);
         judged = times.map(() => false);
-        els.statusText.textContent = '지금! 같은 리듬으로 접었다 펴세요.';
+        els.statusText.textContent = '바로 따라하세요! 같은 리듬으로 접었다 펴세요.';
         setSpeech(els.hostSpeech, '잘 따라오고 있나요?');
         setSpeech(els.playerSpeech, '아무 키나 누르세요!');
         cancelAnimationFrame(animationFrame);
